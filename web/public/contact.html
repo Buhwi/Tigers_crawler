@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문의하기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 300px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+        /* 로딩 화면 스타일 */
+        #loading-screen {
+            display: none; /* 기본적으로 숨김 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>문의하기</h1>
+    <form id="contact-form">
+        <label for="name">이름:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">이메일:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="message">메시지:</label><br>
+        <textarea id="message" name="message" rows="5" required></textarea><br><br>
+
+        <button type="submit">전송</button>
+    </form>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">대시보드</a></li>
+        </ul>
+    </nav>
+
+    <!-- 서버 응답 메시지를 표시할 영역 -->
+    <div id="response-message" style="margin-top: 20px;"></div>
+
+    <!-- 로딩 화면 -->
+    <div id="loading-screen">
+        <p>문의 전송 중입니다. 잠시만 기다려 주세요...</p>
+    </div>
+
+    <!-- JavaScript 코드 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('contact-form');
+            const responseMessage = document.getElementById('response-message');
+            const loadingScreen = document.getElementById('loading-screen');
+
+            // 로딩 화면 초기화
+            loadingScreen.style.display = 'none';
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // 기본 폼 제출 동작 방지
+
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value,
+                };
+
+                // 로딩 화면 표시
+                loadingScreen.style.display = 'flex';
+                responseMessage.innerHTML = ''; // 이전 메시지 초기화
+
+                // 서버로 데이터 전송
+                fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    // 로딩 화면 숨기기
+                    loadingScreen.style.display = 'none';
+
+                    // 성공 또는 실패 메시지 표시
+                    if (data.success) {
+                        responseMessage.innerHTML = `<p style="color: blue;">${data.message}</p>`;
+                        form.reset(); // 폼 초기화
+                    } else {
+                        responseMessage.innerHTML = `<p style="color: red;">${data.message}</p>`;
+                    }
+                })
+                .catch((error) => {
+                    // 로딩 화면 숨기기
+                    loadingScreen.style.display = 'none';
+
+                    // 네트워크 오류 등 처리
+                    console.error('오류 발생:', error);
+                    responseMessage.innerHTML = `<p style="color: red;">알 수 없는 오류가 발생했습니다.</p>`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
