@@ -3,13 +3,18 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.webdriver.common.alert import Alert
+
 
 import time
 
 def craw(id, passwd, year, semester):
+    prefs = {"profile.default_content_setting_values.notifications": 2}  # 알림 비활성화
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('window-size=5000, 5000')
+    options.add_argument("--disable-popup-blocking")  # 팝업 차단 비활성화
     driver = webdriver.Chrome(options=options)
     driver.set_window_size(5000, 5000)
 
